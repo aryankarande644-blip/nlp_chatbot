@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+*.log
+npm-debug.log*
+.env
+.env.local
+backend/models/*.json
+!backend/models/.gitkeep
+.DS_Store
+.vscode/
+.idea/

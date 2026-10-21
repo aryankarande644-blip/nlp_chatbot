@@ -1,0 +1,290 @@
+[
+  {
+    "text": "hi there friend",
+    "intent": "greeting"
+  },
+  {
+    "text": "good morning to you",
+    "intent": "greeting"
+  },
+  {
+    "text": "hey howdy partner",
+    "intent": "greeting"
+  },
+  {
+    "text": "see ya later alligator",
+    "intent": "goodbye"
+  },
+  {
+    "text": "i need to head out now",
+    "intent": "goodbye"
+  },
+  {
+    "text": "catch you soon",
+    "intent": "goodbye"
+  },
+  {
+    "text": "cheers mate",
+    "intent": "thanks"
+  },
+  {
+    "text": "i really appreciate your help",
+    "intent": "thanks"
+  },
+  {
+    "text": "much obliged",
+    "intent": "thanks"
+  },
+  {
+    "text": "how have things been with you",
+    "intent": "how_are_you"
+  },
+  {
+    "text": "you doing alright today",
+    "intent": "how_are_you"
+  },
+  {
+    "text": "everything going okay",
+    "intent": "how_are_you"
+  },
+  {
+    "text": "describe what kind of thing you are",
+    "intent": "bot_identity"
+  },
+  {
+    "text": "who am i speaking with",
+    "intent": "bot_identity"
+  },
+  {
+    "text": "tell me your identity",
+    "intent": "bot_identity"
+  },
+  {
+    "text": "who programmed this thing",
+    "intent": "bot_creator"
+  },
+  {
+    "text": "by whom were you created",
+    "intent": "bot_creator"
+  },
+  {
+    "text": "what team made you",
+    "intent": "bot_creator"
+  },
+  {
+    "text": "list everything you can do",
+    "intent": "capabilities"
+  },
+  {
+    "text": "show me your skills",
+    "intent": "capabilities"
+  },
+  {
+    "text": "what tasks are you good for",
+    "intent": "capabilities"
+  },
+  {
+    "text": "i'm lost please guide me",
+    "intent": "help"
+  },
+  {
+    "text": "show usage instructions",
+    "intent": "help"
+  },
+  {
+    "text": "how should i interact with you",
+    "intent": "help"
+  },
+  {
+    "text": "my name is robert",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "they call me nancy",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "you can refer to me as george",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "can you remind me who i am",
+    "intent": "ask_my_name"
+  },
+  {
+    "text": "do you remember me from before",
+    "intent": "ask_my_name"
+  },
+  {
+    "text": "what name do you have for me",
+    "intent": "ask_my_name"
+  },
+  {
+    "text": "could you tell me the hour",
+    "intent": "get_time"
+  },
+  {
+    "text": "do you know what time it is now",
+    "intent": "get_time"
+  },
+  {
+    "text": "current hour please",
+    "intent": "get_time"
+  },
+  {
+    "text": "what is the full date today",
+    "intent": "get_date"
+  },
+  {
+    "text": "tell me what day and date it is",
+    "intent": "get_date"
+  },
+  {
+    "text": "which calendar day is it",
+    "intent": "get_date"
+  },
+  {
+    "text": "compute 8 times 9",
+    "intent": "simple_math"
+  },
+  {
+    "text": "what is 100 divided by 5",
+    "intent": "simple_math"
+  },
+  {
+    "text": "add 45 and 55",
+    "intent": "simple_math"
+  },
+  {
+    "text": "crack me up with something funny",
+    "intent": "tell_joke"
+  },
+  {
+    "text": "do you have a humorous story",
+    "intent": "tell_joke"
+  },
+  {
+    "text": "i need a good laugh",
+    "intent": "tell_joke"
+  },
+  {
+    "text": "you are really clever",
+    "intent": "compliment"
+  },
+  {
+    "text": "i think you're amazing",
+    "intent": "compliment"
+  },
+  {
+    "text": "well done indeed",
+    "intent": "compliment"
+  },
+  {
+    "text": "you are absolutely worthless",
+    "intent": "insult"
+  },
+  {
+    "text": "this bot is garbage",
+    "intent": "insult"
+  },
+  {
+    "text": "you're such an idiot",
+    "intent": "insult"
+  },
+  {
+    "text": "yep that's correct",
+    "intent": "affirm"
+  },
+  {
+    "text": "sounds good to me",
+    "intent": "affirm"
+  },
+  {
+    "text": "absolutely yes",
+    "intent": "affirm"
+  },
+  {
+    "text": "nah not interested",
+    "intent": "deny"
+  },
+  {
+    "text": "not gonna happen",
+    "intent": "deny"
+  },
+  {
+    "text": "i'd rather not",
+    "intent": "deny"
+  },
+  {
+    "text": "will it rain this week",
+    "intent": "weather_smalltalk"
+  },
+  {
+    "text": "is it going to be chilly",
+    "intent": "weather_smalltalk"
+  },
+  {
+    "text": "should i pack a jacket",
+    "intent": "weather_smalltalk"
+  },
+  {
+    "text": "what's your favorite hobby",
+    "intent": "small_talk_hobby"
+  },
+  {
+    "text": "do you have any interests",
+    "intent": "small_talk_hobby"
+  },
+  {
+    "text": "what keeps you entertained",
+    "intent": "small_talk_hobby"
+  },
+  {
+    "text": "when did you come into existence",
+    "intent": "age"
+  },
+  {
+    "text": "are you a new bot",
+    "intent": "age"
+  },
+  {
+    "text": "what year were you created",
+    "intent": "age"
+  },
+  {
+    "text": "its aaryan",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "it's samantha",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "im robert",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "i'm lucy",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "you can call me marco",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "they call me natalie",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "everyone calls me peter",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "people call me ravi",
+    "intent": "introduce_name"
+  },
+  {
+    "text": "just call me zoe",
+    "intent": "introduce_name"
+  }
+]

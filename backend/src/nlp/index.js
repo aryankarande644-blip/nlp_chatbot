@@ -11,6 +11,7 @@ import { KNN } from './classifiers/knn.js';
 import { extractEntities } from './ner.js';
 import { analyzeSentiment } from './sentiment.js';
 import { tryMathEvaluate } from './mathEval.js';
+import { tryAnalytics } from '../analytics/index.js';
 import { RetrievalQA } from './retrieval.js';
 import { DialogueManager } from './dialogue.js';
 import { formatReply } from './responder.js';
@@ -147,7 +148,29 @@ export function analyze(message, history = [], context = {}) {
     }
     // Otherwise fall through; if nothing else matches, we re-ask below.
   }
-
+  
+  // Analytics check (CSV data) - before classification
+  try {
+    const analyticsRes = tryAnalytics(message);
+    if (analyticsRes && analyticsRes.reply) {
+      const updatedContext = dialogueManager.updateContext(context, message, entities, sentiment, 'analytics_query', analyticsRes.reply);
+      console.log(JSON.stringify({ intent: 'analytics_query', confidence: 1.0, source: 'analytics', latency: Date.now() - start }));
+      return {
+        intent: 'analytics_query',
+        confidence: 1.0,
+        topIntents: [{ intent: 'analytics_query', p: 1.0 }],
+        entities,
+        sentiment,
+        source: 'analytics',
+        reply: analyticsRes.reply,
+        context: updatedContext,
+        pipeline
+      };
+    }
+  } catch (e) {
+    // ignore analytics errors, fall through
+  }
+  
   // Math check - more specific
   const lowerMsgCheck = message.toLowerCase();
   const hasMathOp = /\d+\s*[+\-*x\/\^%]\s*\d+|\bplus\b|\bminus\b|\btimes\b|\bdivided by\b|\bmultiplied by\b|\badd\b.*\band\b|\bsubtract\b|\bwhat is .*\d+/.test(lowerMsgCheck);

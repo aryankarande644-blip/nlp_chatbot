@@ -1,0 +1,4 @@
+Held-out results (accuracy / macro-F1):
+NaiveBayes: 0.7183 / 0.6908
+Softmax: 0.8451 / 0.8415
+KNN: 0.7535 / 0.7483

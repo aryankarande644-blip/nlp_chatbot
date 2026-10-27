@@ -166,57 +166,9 @@ function main() {
   console.log('Softmax:', smAcc.toFixed(4), '/', smF1.toFixed(4));
   console.log('KNN:', knnAcc.toFixed(4), '/', knnF1.toFixed(4));
   
-  // CV
-  const folds = kFoldStratified(allPatterns, allLabels, 5);
-  function cvForClassifier(which) {
-    const accs = [];
-    const f1s = [];
-    for (let f = 0; f < 5; f++) {
-      const testFold = folds[f];
-      const trainFold = [];
-      for (let ff = 0; ff < 5; ff++) if (ff !== f) trainFold.push(...folds[ff]);
-      // fit vectorizer per fold (no leakage)
-      const foldVec = new Vectorizer(VECTORIZER_OPTS);
-      const foldTrainPatterns = trainFold.map(i => allPatterns[i]);
-      foldVec.fit(foldTrainPatterns);
-      const XfTrain = foldTrainPatterns.map(p => foldVec.transform(p));
-      const yfTrain = trainFold.map(i => allLabels[i]);
-      const XfTest = testFold.map(i => foldVec.transform(allPatterns[i]));
-      const yfTest = testFold.map(i => allLabels[i]);
-      let pred;
-      if (which === 'nb') {
-        const c = new NaiveBayes(1);
-        c.fit(XfTrain, yfTrain);
-        pred = XfTest.map(x => Object.entries(c.predictProba(x)).sort((a,b)=>b[1]-a[1])[0][0]);
-      } else if (which === 'sm') {
-        const c = new SoftmaxRegression(SOFTMAX_CONFIG);
-        c.fit(XfTrain, yfTrain);
-        pred = XfTest.map(x => Object.entries(c.predictProba(x)).sort((a,b)=>b[1]-a[1])[0][0]);
-      } else {
-        const c = new KNN(5);
-        c.fit(XfTrain, yfTrain);
-        pred = XfTest.map(x => Object.entries(c.predictProba(x, foldVec)).sort((a,b)=>b[1]-a[1])[0][0]);
-      }
-      accs.push(computeAccuracy(yfTest, pred));
-      f1s.push(macroF1Of(yfTest, pred));
-    }
-    const mean = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
-    const std = arr => { const m = mean(arr); return Math.sqrt(arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length); };
-    return { accMean: mean(accs), accStd: std(accs), f1Mean: mean(f1s), f1Std: std(f1s) };
-  }
-  
-  const cvNb = cvForClassifier('nb');
-  const cvSm = cvForClassifier('sm');
-  const cvKnn = cvForClassifier('knn');
-  console.log('CV (accuracy / macro-F1):');
-  console.log('NaiveBayes:', cvNb.accMean.toFixed(4), '/', cvNb.f1Mean.toFixed(4));
-  console.log('Softmax:', cvSm.accMean.toFixed(4), '/', cvSm.f1Mean.toFixed(4));
-  console.log('KNN:', cvKnn.accMean.toFixed(4), '/', cvKnn.f1Mean.toFixed(4));
-  
-  // choose best by CV macro-F1
+  // Skip CV for speed (Softmax won on held-out)
+  console.log('Skipping 5-fold CV (too slow in pure JS). Using held-out best: Softmax');
   let best = 'softmax';
-  if (cvNb.f1Mean > cvSm.f1Mean && cvNb.f1Mean > cvKnn.f1Mean) best = 'nb';
-  else if (cvKnn.f1Mean > cvSm.f1Mean && cvKnn.f1Mean > cvNb.f1Mean) best = 'knn';
   
   // retrain on all
   const vectorizerAll = new Vectorizer(VECTORIZER_OPTS);

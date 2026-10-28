@@ -99,8 +99,7 @@ function isAnalyticsQuestion(msg) {
     /when did .* most/i,
     /when was .* most/i,
     /when were there most/i,
-    /which month.*most/i,
-    /which week.*most/i,
+    /which (month|week|year).*most/i,
     /which (month|week|year).*had/i,
     /most (positive|negative|neutral)/i,
     /least (positive|negative|neutral)/i,
@@ -111,18 +110,24 @@ function isAnalyticsQuestion(msg) {
     /engagement/i,
     /highest (number|count)/i,
     /maximum/i,
-    /show (me )?how many/i
+    /show (me )?how many/i,
+    /give me/i,
+    /tell me.*(how many|count|number)/i
   ];
   for (const p of patterns) {
     if (p.test(msg) || p.test(m)) return true;
   }
   // also catch if asking about positive/negative/neutral comments with counts
   if ((m.includes('positive') || m.includes('negative') || m.includes('neutral')) && 
-      (m.includes('comment') || m.includes('how many') || m.includes('count') || m.includes('number'))) {
+      (m.includes('comment') || m.includes('how many') || m.includes('count') || m.includes('number') || m.includes('total'))) {
     return true;
   }
   // catch "comments from platform"
   if (m.includes('comment') && (m.includes('instagram') || m.match(/\bx\b/) || m.includes('twitter'))) {
+    return true;
+  }
+  // catch "month had most" variations
+  if ((m.includes('month') || m.includes('week')) && (m.includes('most') || m.includes('had most'))) {
     return true;
   }
   return false;
@@ -236,7 +241,7 @@ export function tryAnalytics(message) {
   }
   
   // Simple counts
-  if (m.includes('how many') || m.includes('count') || m.includes('total') || m.includes('number of') || m.includes('give me the number')) {
+  if (m.includes('how many') || m.includes('count') || m.includes('total') || m.includes('number of') || m.includes('give me') || m.includes('tell me') && (m.includes('how many') || m.includes('count'))) {
     const count = filtered.length;
     const sentLabel = sentimentFilter ? sentimentFilter + ' ' : '';
     const platLabel = platformFilter ? ` from ${platformFilter === 'INSTAGRAM' ? 'Instagram' : 'X'}` : '';
@@ -245,7 +250,7 @@ export function tryAnalytics(message) {
       ` in ${monthYearFilter.year}`) : '';
     
     if (m.includes('total')) {
-      return { reply: `There are ${count} total comments${platLabel}${timeLabel} in the dataset.` };
+      return { reply: `There are ${count} total comments${platLabel}${timeLabel}.` };
     }
     return { reply: `There are ${count} ${sentLabel}comments${platLabel}${timeLabel}.` };
   }

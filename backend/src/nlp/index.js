@@ -149,7 +149,7 @@ export function analyze(message, history = [], context = {}) {
     // Otherwise fall through; if nothing else matches, we re-ask below.
   }
   
-  // Analytics check (CSV data) - before classification
+  // Analytics check (CSV data) - before classification (also try with expanded synonyms)
   try {
     const analyticsRes = tryAnalytics(message);
     if (analyticsRes && analyticsRes.reply) {

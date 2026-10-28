@@ -4,18 +4,36 @@ function normalize(s) {
   return (s || '').toLowerCase();
 }
 
+const SYNONYMS = {
+  positive: ['pos', '+ve', 'good', 'favourable', 'favorable'],
+  negative: ['neg', '-ve', 'bad', 'unfavourable', 'unfavorable'],
+  neutral: ['neut'],
+  instagram: ['ig', 'insta', 'instagram'],
+  x: ['twitter', 'tweet', 'tweets'],
+  comments: ['comment', 'comments', 'replies', 'feedback'],
+  count: ['how many', 'number of', 'total number of', 'give me the number of', 'tell me how many']
+};
+
+function expandSynonyms(text) {
+  let t = text.toLowerCase();
+  // expand
+  if (t.match(/\bpos(itive)?\b/) || t.includes('+ve')) t = t.replace(/\bpos(itive)?\b/g, 'positive').replace(/\+ve/g, 'positive');
+  if (t.match(/\bneg(ative)?\b/) || t.includes('-ve')) t = t.replace(/\bneg(ative)?\b/g, 'negative').replace(/-ve/g, 'negative');
+  if (t.match(/\big\b|\binsta\b/)) t = t.replace(/\big\b/g, 'instagram').replace(/\binsta\b/g, 'instagram');
+  if (t.match(/\btwitter\b|\btweets?\b/)) t = t.replace(/\btwitter\b/g, 'x').replace(/\btweets?\b/g, 'x');
+  // contractions/common
+  t = t.replace(/what's/g, 'what is').replace(/how's/g, 'how is');
+  return t;
+}
+
 function extractSentimentFilter(msg) {
-  const m = normalize(msg);
-  if (m.includes('positive') && !m.includes('negative') && !m.includes('neutral')) {
-    // check if it's asking about positive specifically
-    if (m.match(/positive/)) return 'positive';
-  }
-  if (m.includes('negative') && !m.includes('positive')) return 'negative';
-  if (m.includes('neutral') && !m.includes('positive') && !m.includes('negative')) return 'neutral';
-  // if multiple mentioned, return null (no specific filter)
-  const pos = (m.match(/positive/g) || []).length;
-  const neg = (m.match(/negative/g) || []).length;
-  const neu = (m.match(/neutral/g) || []).length;
+  const m = expandSynonyms(normalize(msg));
+  if (m.match(/\bpositive\b/) && !m.match(/\bnegative\b/) && !m.match(/\bneutral\b/)) return 'positive';
+  if (m.match(/\bnegative\b/) && !m.match(/\bpositive\b/) && !m.match(/\bneutral\b/)) return 'negative';
+  if (m.match(/\bneutral\b/) && !m.match(/\bpositive\b/) && !m.match(/\bnegative\b/)) return 'neutral';
+  const pos = (m.match(/\bpositive\b/g) || []).length;
+  const neg = (m.match(/\bnegative\b/g) || []).length;
+  const neu = (m.match(/\bneutral\b/g) || []).length;
   if (pos > 0 && neg === 0 && neu === 0) return 'positive';
   if (neg > 0 && pos === 0 && neu === 0) return 'negative';
   if (neu > 0 && pos === 0 && neg === 0) return 'neutral';
@@ -23,20 +41,26 @@ function extractSentimentFilter(msg) {
 }
 
 function extractPlatformFilter(msg) {
-  const m = normalize(msg);
-  if (m.includes('instagram') || m.includes('insta')) return 'INSTAGRAM';
-  if (m.includes(' twitter') || m.match(/\bx\b/) || m.includes('from x')) return 'X';
+  const m = expandSynonyms(normalize(msg));
+  if (m.includes('instagram')) return 'INSTAGRAM';
+  if (m.match(/\bx\b/) || m.includes('twitter')) return 'X';
   return null;
 }
 
 function extractTimeGroup(msg) {
-  const m = normalize(msg);
-  if (m.includes('by week') || m.includes('per week') || m.includes('weekly')) return 'week';
-  if (m.includes('by month') || m.includes('per month') || m.includes('monthly')) return 'month';
-  if (m.includes('by year') || m.includes('per year') || m.includes('yearly')) return 'year';
+  const m = expandSynonyms(normalize(msg));
+  if (m.includes('by week') || m.includes('per week') || m.includes('weekly') || m.includes('week')) return 'week';
+  if (m.includes('by month') || m.includes('per month') || m.includes('monthly') || m.includes('month')) return 'month';
+  if (m.includes('by year') || m.includes('per year') || m.includes('yearly') || m.includes('year')) return 'year';
   // if asking "when were most..." without specifying, default to month
-  if (m.includes('when were') && (m.includes('most') || m.includes('least'))) {
+  if ((m.includes('when were') || m.includes('which') && m.includes('time')) && (m.includes('most') || m.includes('least') || m.includes('highest') || m.includes('max'))) {
     if (m.includes('week')) return 'week';
+    if (m.includes('year')) return 'year';
+    return 'month';
+  }
+  if (m.includes('most') && (m.includes('month') || m.includes('week') || m.includes('year'))) {
+    if (m.includes('week')) return 'week';
+    if (m.includes('year')) return 'year';
     return 'month';
   }
   return null;
@@ -64,13 +88,16 @@ function extractMonthYear(msg) {
 }
 
 function isAnalyticsQuestion(msg) {
-  const m = normalize(msg);
+  const m = expandSynonyms(normalize(msg));
   const patterns = [
     /how many/i,
     /count of/i,
     /\bcount\b/i,
+    /number of/i,
     /total (comments|posts|likes)/i,
     /when were most/i,
+    /when did .* most/i,
+    /when was .* most/i,
     /when were there most/i,
     /which month.*most/i,
     /which week.*most/i,
@@ -81,28 +108,36 @@ function isAnalyticsQuestion(msg) {
     /(instagram|insta|twitter|\bx\b).*comments/i,
     /likes.*most/i,
     /most likes/i,
-    /engagement/i
+    /engagement/i,
+    /highest (number|count)/i,
+    /maximum/i,
+    /show (me )?how many/i
   ];
   for (const p of patterns) {
-    if (p.test(msg)) return true;
+    if (p.test(msg) || p.test(m)) return true;
   }
   // also catch if asking about positive/negative/neutral comments with counts
   if ((m.includes('positive') || m.includes('negative') || m.includes('neutral')) && 
-      (m.includes('comment') || m.includes('how many'))) {
+      (m.includes('comment') || m.includes('how many') || m.includes('count') || m.includes('number'))) {
+    return true;
+  }
+  // catch "comments from platform"
+  if (m.includes('comment') && (m.includes('instagram') || m.match(/\bx\b/) || m.includes('twitter'))) {
     return true;
   }
   return false;
 }
 
 export function tryAnalytics(message) {
-  if (!isAnalyticsQuestion(message)) return null;
+  const expanded = expandSynonyms(message);
+  if (!isAnalyticsQuestion(message) && !isAnalyticsQuestion(expanded)) return null;
   
   const data = loadAnalyticsData();
   if (!data || data.length === 0) {
     return { reply: "I don't have any comment data loaded right now." };
   }
   
-  const m = normalize(message);
+  const m = expanded;
   const sentimentFilter = extractSentimentFilter(message);
   const platformFilter = extractPlatformFilter(message);
   const timeGroup = extractTimeGroup(message);
@@ -201,7 +236,7 @@ export function tryAnalytics(message) {
   }
   
   // Simple counts
-  if (m.includes('how many') || m.includes('count') || m.includes('total')) {
+  if (m.includes('how many') || m.includes('count') || m.includes('total') || m.includes('number of') || m.includes('give me the number')) {
     const count = filtered.length;
     const sentLabel = sentimentFilter ? sentimentFilter + ' ' : '';
     const platLabel = platformFilter ? ` from ${platformFilter === 'INSTAGRAM' ? 'Instagram' : 'X'}` : '';
@@ -219,5 +254,8 @@ export function tryAnalytics(message) {
   const count = filtered.length;
   const sentLabel = sentimentFilter ? sentimentFilter + ' ' : '';
   const platLabel = platformFilter ? ` from ${platformFilter === 'INSTAGRAM' ? 'Instagram' : 'X'}` : '';
-  return { reply: `There are ${count} ${sentLabel}comments${platLabel} matching your query.` };
+  if (count === 0) {
+    return { reply: `I don't see any ${sentLabel}comments${platLabel} matching that.` };
+  }
+  return { reply: `There are ${count} ${sentLabel}comments${platLabel}.` };
 }
